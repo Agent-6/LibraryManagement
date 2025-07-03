@@ -1,7 +1,7 @@
 using LibraryManagement.Application;
 using LibraryManagement.Infrastructure;
 using LibraryManagement.Presentation;
-using Serilog;
+//using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +13,10 @@ builder.Services
     .AddInfrastructure()
     .AddPresentation();
 
-builder.Host.UseSerilog((context, configuration) =>
-{
-    configuration.ReadFrom.Configuration(context.Configuration);
-});
+//builder.Host.UseSerilog((context, configuration) =>
+//{
+//    configuration.ReadFrom.Configuration(context.Configuration);
+//});
 
 var app = builder.Build();
 
@@ -26,7 +26,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseSerilogRequestLogging();
+//app.UseSerilogRequestLogging();
 
 app.MapGet("/", () => Results.Ok("Hello World!"));
 

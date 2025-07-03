@@ -1,0 +1,12 @@
+services:
+  librarydb:
+    image: postgres
+
+  librarymanagement.web:
+    image: ${DOCKER_REGISTRY-}librarymanagementweb
+    build:
+      context: .
+      dockerfile: LibraryManagement.Web/Dockerfile
+
+volumes:
+  postgres_library:
