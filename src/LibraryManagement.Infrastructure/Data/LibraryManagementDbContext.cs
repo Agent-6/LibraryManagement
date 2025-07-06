@@ -31,8 +31,8 @@ public class LibraryManagementDbContext(DbContextOptions<LibraryManagementDbCont
                 .HasForeignKey(e => e.BorrowerId);
 
             entity.HasOne<Book>()
-                .WithOne()
-                .HasForeignKey<Loan>(e => e.BookId);
+                .WithMany()
+                .HasForeignKey(e => e.BookId);
         });
 
         base.OnModelCreating(modelBuilder);

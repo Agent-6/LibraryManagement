@@ -1,14 +1,32 @@
 ﻿using LibraryManagement.Domain.Abstracts;
 using LibraryManagement.Domain.Authors;
+using System.Text.Json.Serialization;
 
 namespace LibraryManagement.Domain.Books;
 
-public class Book(string title, string iSBN, DateOnly publishDate, Author author) : AuditedEntity
+public class Book : AuditedEntity
 {
-    public string Title { get; set; } = title;
-    public string ISBN { get; set; } = iSBN;
-    public DateOnly PublishDate { get; set; } = publishDate;
-    public Guid AuthorId { get; private set; } = author.Id;
+    public Book(string title, string iSBN, DateOnly publishDate, Author author)
+    {
+        Title = title;
+        ISBN = iSBN;
+        PublishDate = publishDate;
+        AuthorId = author.Id;
+    }
+
+    [JsonConstructor]
+    private Book(string title, string iSBN, DateOnly publishDate, Guid authorId)
+    {
+        Title = title;
+        ISBN = iSBN;
+        PublishDate = publishDate;
+        AuthorId = authorId;
+    }
+
+    public string Title { get; set; } = string.Empty;
+    public string ISBN { get; set; } = string.Empty;
+    public DateOnly PublishDate { get; set; }
+    public Guid AuthorId { get; private set; }
 
     public void SetAuthor(Author author)
     {
