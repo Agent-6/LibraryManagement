@@ -1,5 +1,5 @@
 ﻿using LibraryManagement.Application.Services.Authentication;
-using LibraryManagement.Domain.Repositories.Users;
+using LibraryManagement.Domain.Users;
 
 namespace LibraryManagement.Application.Users;
 
@@ -7,7 +7,6 @@ internal class UserService(IAuthenticationProvider authenticationProvider, IUser
 {
     private readonly IAuthenticationProvider _authenticationProvider = authenticationProvider;
     private readonly IUserRepository _userRepository = userRepository;
-
     public async Task<LoginResponse> LoginAsync(LoginRequest request) =>
         await _authenticationProvider.AuthenticateAsync(request);
 
@@ -34,6 +33,8 @@ internal class UserService(IAuthenticationProvider authenticationProvider, IUser
         user.Username = request.Username;
         user.Email = request.Email;
         user.PhoneNumber = request.PhoneNumber;
+
+        await _userRepository.UpdateAsync(user);
 
         return new(Id: user.Id, Username: user.Username, Email: user.Email, PhoneNumber: user.PhoneNumber);
     }

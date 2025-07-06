@@ -1,4 +1,8 @@
 ﻿using LibraryManagement.Application.Services.Authentication;
+using LibraryManagement.Domain.Authors;
+using LibraryManagement.Domain.Books;
+using LibraryManagement.Domain.Borrowers;
+using LibraryManagement.Domain.Loans;
 using LibraryManagement.Domain.Users;
 using LibraryManagement.Infrastructure.Authentication;
 using LibraryManagement.Infrastructure.Data;
@@ -77,6 +81,10 @@ public static class DependencyInjection
         services.AddDatabaseDeveloperPageExceptionFilter();
 
         // repositories
+        services.AddTransient<IAuthorRepository, AuthorRepository>();
+        services.AddTransient<IBookRepository, BookRepository>();
+        services.AddTransient<IBorrowerRepository, BorrowerRepository>();
+        services.AddTransient<ILoanRepository, LoanRepository>();
         services.AddTransient<IUserRepository, UserRepository>();
 
         return services;
