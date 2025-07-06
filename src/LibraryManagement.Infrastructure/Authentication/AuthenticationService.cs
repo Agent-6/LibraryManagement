@@ -77,7 +77,7 @@ internal class AuthenticationService(LibraryManagementDbContext dbContext, IPass
         }
 
         var hashedPassword = _passwordHasher.HashPassword(null!, request.Password);
-        var user = new User(Guid.NewGuid(), request.Username, hashedPassword, request.Email, request.PhoneNumber);
+        var user = new User(request.Username, hashedPassword, request.Email, request.PhoneNumber);
 
         await _dbContext.AddAsync(user);
         await _dbContext.SaveChangesAsync();

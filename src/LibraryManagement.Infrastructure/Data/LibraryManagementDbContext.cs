@@ -1,29 +1,40 @@
-﻿using LibraryManagement.Domain.Users;
+﻿using LibraryManagement.Domain.Authors;
+using LibraryManagement.Domain.Books;
+using LibraryManagement.Domain.Borrowers;
+using LibraryManagement.Domain.Loans;
+using LibraryManagement.Domain.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LibraryManagement.Infrastructure.Data;
 
 public class LibraryManagementDbContext(DbContextOptions<LibraryManagementDbContext> options) : DbContext(options)
 {
+    public DbSet<User> Users { get; set; }
+    public DbSet<Book> Books { get; set; }
+    public DbSet<Author> Authors { get; set; }
+    public DbSet<Borrower> Borrowers { get; set; }
+    public DbSet<Loan> Loans { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var passwordHasher = new PasswordHasher<User>();
-        var hashedPassword = passwordHasher.HashPassword(null!, "1234");
-        var user = new User(
-            id: Guid.NewGuid(),
-            username: "Mohammad",
-            email: "mohammad@test.com",
-            password: hashedPassword,
-            phoneNumber: "07988998998");
+        modelBuilder.Entity<Book>()
+            .HasOne<Author>()
+            .WithMany()
+            .HasForeignKey(e => e.AuthorId);
 
-        modelBuilder.Entity<User>(entity =>
+        modelBuilder.Entity<Loan>(entity =>
         {
-            entity.HasData([user]);
+            entity.HasOne<Borrower>()
+                .WithMany()
+                .HasForeignKey(e => e.BorrowerId);
+
+            entity.HasOne<Book>()
+                .WithOne()
+                .HasForeignKey<Loan>(e => e.BookId);
         });
 
         base.OnModelCreating(modelBuilder);
     }
-
-    public DbSet<User> Users { get; set; }
 }

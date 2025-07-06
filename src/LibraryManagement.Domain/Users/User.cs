@@ -2,7 +2,7 @@
 
 namespace LibraryManagement.Domain.Users;
 
-public class User(Guid id, string username, string password, string email, string phoneNumber) : Entity(id)
+public class User(string username, string password, string email, string phoneNumber) : AuditedEntity
 {
     public string Username { get; set; } = username;
     public string Password { get; private init; } = password;
