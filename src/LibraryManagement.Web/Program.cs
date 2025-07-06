@@ -3,6 +3,7 @@ using LibraryManagement.Infrastructure;
 using LibraryManagement.Presentation;
 using LibraryManagement.Presentation.Authors;
 using LibraryManagement.Presentation.Books;
+using LibraryManagement.Presentation.Borrowers;
 using LibraryManagement.Presentation.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
@@ -60,6 +61,7 @@ if (app.Environment.IsDevelopment())
 app.MapUserEndpoints();
 app.MapAuthorsEndpoints();
 app.MapBooksEndpoints();
+app.MapBorrowersEndpoints();
 
 app.UseHttpsRedirection();
 
