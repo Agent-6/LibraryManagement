@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Application.Services.Authentication;
+﻿using LibraryManagement.Application.Helpers;
+using LibraryManagement.Application.Services.Authentication;
 using LibraryManagement.Domain.Users;
 
 namespace LibraryManagement.Application.Users;
@@ -23,9 +24,9 @@ internal class UserService(IAuthenticationProvider authenticationProvider, IUser
 
     public async Task<UserResponse?> UpdateAsync(Guid id, UserUpdateRequest request)
     {
-        CheckEmpty(request.Username, nameof(request.Username));
-        CheckEmpty(request.Email, nameof(request.Email));
-        CheckEmpty(request.PhoneNumber, nameof(request.PhoneNumber));
+        Check.Empty(request.Username, nameof(request.Username));
+        Check.Empty(request.Email, nameof(request.Email));
+        Check.Empty(request.PhoneNumber, nameof(request.PhoneNumber));
 
         var user = await _userRepository.GetAsync(id);
         if (user is null) return null; // ??? throw here
@@ -37,11 +38,5 @@ internal class UserService(IAuthenticationProvider authenticationProvider, IUser
         await _userRepository.UpdateAsync(user);
 
         return new(Id: user.Id, Username: user.Username, Email: user.Email, PhoneNumber: user.PhoneNumber);
-    }
-
-    private static void CheckEmpty(string paramValue, string paramName)
-    {
-        if (string.IsNullOrEmpty(paramValue))
-            throw new ArgumentNullException(paramName);
     }
 }
