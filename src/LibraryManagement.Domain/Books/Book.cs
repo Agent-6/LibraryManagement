@@ -1,19 +1,18 @@
 ﻿using LibraryManagement.Domain.Abstracts;
+using LibraryManagement.Domain.Authors;
 
 namespace LibraryManagement.Domain.Books;
 
-public class Book : AuditedEntity
+public class Book(string title, string iSBN, DateOnly publishDate, Author author) : AuditedEntity
 {
-    internal Book(string title, string iSBN, DateOnly publishDate, Guid authorId)
-    {
-        Title = title;
-        ISBN = iSBN;
-        PublishDate = publishDate;
-        AuthorId = authorId;
-    }
+    public string Title { get; set; } = title;
+    public string ISBN { get; set; } = iSBN;
+    public DateOnly PublishDate { get; set; } = publishDate;
+    public Guid AuthorId { get; private set; } = author.Id;
 
-    public string Title { get; set; } = string.Empty;
-    public string ISBN { get; set; } = string.Empty;
-    public DateOnly PublishDate { get; set; }
-    public Guid AuthorId { get; set; }
+    public void SetAuthor(Author author)
+    {
+        if (author is null) return;
+        AuthorId = author.Id;
+    }
 }
