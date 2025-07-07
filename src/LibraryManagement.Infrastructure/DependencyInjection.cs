@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Application.Services.Authentication;
+﻿using LibraryManagement.Application.Persistance;
+using LibraryManagement.Application.Services.Authentication;
 using LibraryManagement.Domain.Authors;
 using LibraryManagement.Domain.Books;
 using LibraryManagement.Domain.Borrowers;
@@ -6,7 +7,7 @@ using LibraryManagement.Domain.Loans;
 using LibraryManagement.Domain.Users;
 using LibraryManagement.Infrastructure.Authentication;
 using LibraryManagement.Infrastructure.Data;
-using LibraryManagement.Infrastructure.Interceptors;
+using LibraryManagement.Infrastructure.Persistance;
 using LibraryManagement.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -66,16 +67,13 @@ public static class DependencyInjection
 
     private static IServiceCollection ConfigPersistance(this IServiceCollection services, IConfiguration configuration)
     {
-        // DB context interceptors
+        // Unit Of Work
         services.AddHttpContextAccessor();
-        services.AddScoped<AuditableEntitiesInterceptor>();
+        services.AddTransient<IUnitOfWork, UnitOfWork>();
         
         services.AddDbContext<LibraryManagementDbContext>((serviceProvider, options) =>
         {
             options.UseNpgsql(configuration.GetConnectionString("Database"));
-
-            var auditInterceptor = serviceProvider.GetRequiredService<AuditableEntitiesInterceptor>();
-            options.AddInterceptors(auditInterceptor);
         });
 
         services.AddDatabaseDeveloperPageExceptionFilter();
