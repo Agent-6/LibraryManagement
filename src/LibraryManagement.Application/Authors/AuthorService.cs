@@ -1,11 +1,13 @@
 ﻿using LibraryManagement.Application.Helpers;
+using LibraryManagement.Application.Persistance;
 using LibraryManagement.Domain.Authors;
 
 namespace LibraryManagement.Application.Authors;
 
-internal class AuthorService(IAuthorRepository authorRepository) : IAuthorService
+internal class AuthorService(IAuthorRepository authorRepository, IUnitOfWork unitOfWork) : IAuthorService
 {
     private readonly IAuthorRepository _authorRepository = authorRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<List<AuthorResponse>> GetListAsync()
     {
@@ -29,7 +31,8 @@ internal class AuthorService(IAuthorRepository authorRepository) : IAuthorServic
 
         var author = new Author(request.Name, request.Bio);
         await _authorRepository.AddAsync(author);
-        
+        await _unitOfWork.SaveChangesAsync();
+
         return new(Id: author.Id, Name: author.Name, Bio: author.Bio);
     }
 
@@ -43,6 +46,7 @@ internal class AuthorService(IAuthorRepository authorRepository) : IAuthorServic
 
         author.Name = request.Name;
         author.Bio = request.Bio;
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: author.Id, Name: author.Name, Bio: author.Bio);
     }
@@ -53,5 +57,6 @@ internal class AuthorService(IAuthorRepository authorRepository) : IAuthorServic
         if (author is null) return;
 
         await _authorRepository.DeleteAsync(author);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

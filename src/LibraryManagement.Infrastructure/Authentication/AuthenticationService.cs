@@ -1,7 +1,5 @@
 ﻿using LibraryManagement.Application.Services.Authentication;
-using LibraryManagement.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using JsonWebTokens = Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,9 +11,9 @@ using LibraryManagement.Domain.Users;
 
 namespace LibraryManagement.Infrastructure.Authentication;
 
-internal class AuthenticationService(LibraryManagementDbContext dbContext, IPasswordHasher<User> passwordHasher, IOptions<AuthOptions> options) : IAuthenticationProvider
+internal class AuthenticationService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher, IOptions<AuthOptions> options) : IAuthenticationProvider
 {
-    private readonly LibraryManagementDbContext _dbContext = dbContext;
+    private readonly IUserRepository _userRepository = userRepository;
     private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
     private readonly AuthOptions _options = options.Value;
 
@@ -24,7 +22,7 @@ internal class AuthenticationService(LibraryManagementDbContext dbContext, IPass
         CheckEmpty(request.Username, nameof(request.Username));
         CheckEmpty(request.Password, nameof(request.Password));
 
-        User? user = await _dbContext.Users.FirstOrDefaultAsync(user => user.Username == request.Username);
+        User? user = await _userRepository.GetAsync(user => user.Username == request.Username);
         if (user is null)
         {
             throw new Exception($"User with username [{request.Username}] was not found.");
@@ -79,8 +77,7 @@ internal class AuthenticationService(LibraryManagementDbContext dbContext, IPass
         var hashedPassword = _passwordHasher.HashPassword(null!, request.Password);
         var user = new User(request.Username, hashedPassword, request.Email, request.PhoneNumber);
 
-        await _dbContext.AddAsync(user);
-        await _dbContext.SaveChangesAsync();
+        await _userRepository.AddAsync(user);
     }
 
     private static void CheckEmpty(string paramValue, string paramName)

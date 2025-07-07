@@ -1,13 +1,15 @@
 ﻿using LibraryManagement.Application.Helpers;
+using LibraryManagement.Application.Persistance;
 using LibraryManagement.Domain.Authors;
 using LibraryManagement.Domain.Books;
 
 namespace LibraryManagement.Application.Books;
 
-internal class BookService(IBookRepository bookRepository, IAuthorRepository authorRepository) : IBookService
+internal class BookService(IBookRepository bookRepository, IAuthorRepository authorRepository, IUnitOfWork unitOfWork) : IBookService
 {
     private readonly IBookRepository _bookRepository = bookRepository;
     private readonly IAuthorRepository _authorRepository = authorRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<List<BookResponse>> GetListAsync()
     {
@@ -39,6 +41,7 @@ internal class BookService(IBookRepository bookRepository, IAuthorRepository aut
                             author: author);
 
         await _bookRepository.AddAsync(book);
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: book.Id, Title: book.Title, ISBN: book.ISBN, PublishDate: book.PublishDate, AuthorId: book.AuthorId);
     }
@@ -60,7 +63,8 @@ internal class BookService(IBookRepository bookRepository, IAuthorRepository aut
         book.PublishDate = request.PublishDate;
         book.SetAuthor(author);
 
-        await _bookRepository.AddAsync(book);
+        await _bookRepository.UpdateAsync(book);
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: book.Id, Title: book.Title, ISBN: book.ISBN, PublishDate: book.PublishDate, AuthorId: book.AuthorId);
     }
@@ -71,5 +75,6 @@ internal class BookService(IBookRepository bookRepository, IAuthorRepository aut
         if (book is null) return;
 
         await _bookRepository.DeleteAsync(book);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

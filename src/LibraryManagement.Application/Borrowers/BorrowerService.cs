@@ -1,11 +1,13 @@
 ﻿using LibraryManagement.Application.Helpers;
+using LibraryManagement.Application.Persistance;
 using LibraryManagement.Domain.Borrowers;
 
 namespace LibraryManagement.Application.Borrowers;
 
-internal class BorrowerService(IBorrowerRepository borrowerRepository) : IBorrowerService
+internal class BorrowerService(IBorrowerRepository borrowerRepository, IUnitOfWork unitOfWork) : IBorrowerService
 {
     private readonly IBorrowerRepository _borrowerRepository = borrowerRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<List<BorrowerResponse>> GetListAsync()
     {
@@ -33,6 +35,7 @@ internal class BorrowerService(IBorrowerRepository borrowerRepository) : IBorrow
                                     phoneNumber: request.PhoneNumber);
 
         await _borrowerRepository.AddAsync(borrower);
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: borrower.Id, Name: borrower.Name, Email: borrower.Email, PhoneNumber: borrower.PhoneNumber);
     }
@@ -51,6 +54,7 @@ internal class BorrowerService(IBorrowerRepository borrowerRepository) : IBorrow
         borrower.PhoneNumber = request.PhoneNumber;
 
         await _borrowerRepository.UpdateAsync(borrower);
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: borrower.Id, Name: borrower.Name, Email: borrower.Email, PhoneNumber: borrower.PhoneNumber);
     }
@@ -61,5 +65,6 @@ internal class BorrowerService(IBorrowerRepository borrowerRepository) : IBorrow
         if (borrower is null) return;
 
         await _borrowerRepository.DeleteAsync(borrower);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

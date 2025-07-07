@@ -1,18 +1,24 @@
 ﻿using LibraryManagement.Application.Helpers;
+using LibraryManagement.Application.Persistance;
 using LibraryManagement.Application.Services.Authentication;
 using LibraryManagement.Domain.Users;
 
 namespace LibraryManagement.Application.Users;
 
-internal class UserService(IAuthenticationProvider authenticationProvider, IUserRepository userRepository) : IUserService
+internal class UserService(IAuthenticationProvider authenticationProvider, IUserRepository userRepository, IUnitOfWork unitOfWork) : IUserService
 {
     private readonly IAuthenticationProvider _authenticationProvider = authenticationProvider;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
     public async Task<LoginResponse> LoginAsync(LoginRequest request) =>
         await _authenticationProvider.AuthenticateAsync(request);
 
-    public async Task RegisterAsync(UserRegistrationRequest request) =>
+    public async Task RegisterAsync(UserRegistrationRequest request)
+    {
         await _authenticationProvider.RegisterAsync(request);
+        await _unitOfWork.SaveChangesAsync();
+    }
 
     public async Task<UserResponse?> GetAsync(UserRequest request)
     {
@@ -36,6 +42,7 @@ internal class UserService(IAuthenticationProvider authenticationProvider, IUser
         user.PhoneNumber = request.PhoneNumber;
 
         await _userRepository.UpdateAsync(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: user.Id, Username: user.Username, Email: user.Email, PhoneNumber: user.PhoneNumber);
     }

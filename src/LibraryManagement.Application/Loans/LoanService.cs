@@ -1,4 +1,5 @@
 ﻿using LibraryManagement.Application.Helpers;
+using LibraryManagement.Application.Persistance;
 using LibraryManagement.Domain.Books;
 using LibraryManagement.Domain.Borrowers;
 using LibraryManagement.Domain.Loans;
@@ -7,11 +8,13 @@ namespace LibraryManagement.Application.Loans;
 
 internal class LoanService(ILoanRepository loanRepository,
                            IBorrowerRepository borrowerRepository,
-                           IBookRepository bookRepository) : ILoanService
+                           IBookRepository bookRepository,
+                           IUnitOfWork unitOfWork) : ILoanService
 {
     private readonly ILoanRepository _loanRepository = loanRepository;
     private readonly IBorrowerRepository _borrowerRepository = borrowerRepository;
     private readonly IBookRepository _bookRepository = bookRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<List<LoanResponse>> GetListAsync()
     {
@@ -40,6 +43,7 @@ internal class LoanService(ILoanRepository loanRepository,
 
         loan = new Loan(borrower, book);
         await _loanRepository.AddAsync(loan);
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: loan.Id, LoanDate: loan.LoanDate, ReturnDate: loan.ReturnDate, BorrowerId: loan.BorrowerId, BookId: loan.BookId);
     }
@@ -51,6 +55,7 @@ internal class LoanService(ILoanRepository loanRepository,
 
         loan.ReturnBook();
         await _loanRepository.UpdateAsync(loan);
+        await _unitOfWork.SaveChangesAsync();
 
         return new(Id: loan.Id, LoanDate: loan.LoanDate, ReturnDate: loan.ReturnDate, BorrowerId: loan.BorrowerId, BookId: loan.BookId);
     }
