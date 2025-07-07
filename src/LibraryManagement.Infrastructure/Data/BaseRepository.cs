@@ -1,5 +1,6 @@
 ﻿using LibraryManagement.Domain.Abstracts;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace LibraryManagement.Infrastructure.Data;
 
@@ -11,6 +12,9 @@ internal abstract class BaseRepository<TEntity>(LibraryManagementDbContext dbCon
     public virtual async Task<List<TEntity>> GetListAsync() => await DbSet.ToListAsync();
 
     public virtual async Task<TEntity?> GetAsync(Guid id) => await DbSet.FindAsync(id);
+    
+    public virtual async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate) =>
+        await DbSet.Where(predicate).FirstOrDefaultAsync();
 
     public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
